@@ -1,0 +1,41 @@
+# Dependencies
+node_modules
+
+# Expo
+.expo
+.expo-shared
+
+# Git
+.git
+.gitignore
+
+# Native folders
+android
+ios
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# Build outputs
+dist
+build
+coverage
+
+# Archives
+*.zip
+*.rar
+*.7z
+*.apk
+*.aab
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
