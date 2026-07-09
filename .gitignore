@@ -51,3 +51,6 @@ dist/
 
 android/
 ios/
+
+# Supabase
+supabase/.temp/
