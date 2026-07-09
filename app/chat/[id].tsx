@@ -9,7 +9,6 @@ import MessageBubble from "@/components/MessageBubble";
 import { useRef } from "react";
 import ReplyBox from "@/components/ReplyBox";
 import { updateConversation } from "@/lib/chat";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 export default function ChatScreen() {
   const { id } = useLocalSearchParams();
