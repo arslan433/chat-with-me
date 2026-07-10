@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "575188263150",
+    "project_id": "portfolio-38145",
+    "storage_bucket": "portfolio-38145.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:575188263150:android:94eb3258a4a0802efcd3ff",
+        "android_client_info": {
+          "package_name": "com.arslan433.chatwithme"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA71WSx7cIuLqZOc1zqQmVoqUDtxVgUUu8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
