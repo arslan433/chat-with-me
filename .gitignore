@@ -54,3 +54,5 @@ ios/
 
 # Supabase
 supabase/.temp/
+
+google-services.json
