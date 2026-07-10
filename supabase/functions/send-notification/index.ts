@@ -15,7 +15,7 @@ Deno.serve(async (req: Request) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Admin Devices Push Token dono events ke liye fetch karna zaroori hai
+    // Get Admin Devices 
     const { data: admin, error: adminError } = await supabase
       .from("admin_devices")
       .select("push_token")
@@ -32,7 +32,7 @@ Deno.serve(async (req: Request) => {
     let conversationId = "";
 
     // =========================================================================
-    // CASE 1: Jasy hi status 'waiting' ho (Conversations Table Update Trigger)
+    // CASE 1: when status 'waiting'  (Conversations Table Update Trigger)
     // =========================================================================
     if (payload.table === "conversations") {
       const currentRecord = payload.record;
@@ -46,8 +46,8 @@ Deno.serve(async (req: Request) => {
 
       // Ensure status transition to waiting is exact
       if (currentStatus === "waiting" && previousStatus !== "waiting") {
-        pushTitle = "Human Support Requested";
-        pushBody = `${currentRecord.visitor_name || "Someone"} is waiting for you, talk to him.`;
+        pushTitle = "New Chat Requested";
+        pushBody = `${currentRecord.visitor_name || "Someone"} is waiting for you, chat with him.`;
         conversationId = currentRecord.id;
       } else {
         console.log(`Ignored: Status change is from '${previousStatus}' to '${currentStatus}'`);
@@ -55,7 +55,7 @@ Deno.serve(async (req: Request) => {
       }
     } 
     // =========================================================================
-    // CASE 2: Waiting status hone ke baad user text kare (Messages Table Insert Trigger)
+    // CASE 2: After Waiting status (Messages Table Insert Trigger)
     // =========================================================================
     else if (payload.table === "messages") {
       const message = payload.record;
@@ -64,13 +64,13 @@ Deno.serve(async (req: Request) => {
         return new Response("No record found in payload", { status: 400 });
       }
 
-      // Validation: Sirf User ke messages par trigger karein
+      // Validation: only  trigger for User  messages 
       if (message.sender !== "user") {
         console.log(`Ignored: Sender is '${message.sender}', not 'user'`);
         return new Response("Ignored: Not a user message");
       }
 
-      // Conversation check karein ke status waiting hai ya nahi
+      // Conversation check  status waiting or not
       const { data: conversation, error: convError } = await supabase
         .from("conversations")
         .select("*")
@@ -105,8 +105,8 @@ Deno.serve(async (req: Request) => {
         title: pushTitle,
         body: pushBody,
         sound: "default",
-        priority: "high",           // App closed notification delivery support
-        channelId: "default",       // Android notification channel setup
+        priority: "high",           
+        channelId: "default",       
         data: { conversationId: conversationId },
       }
     ];
