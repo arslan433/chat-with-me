@@ -1,50 +1,433 @@
-# Welcome to your Expo app 👋
+# Chat With Me 💬
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A real-time portfolio support chat application built with Expo, React Native, Supabase, and TypeScript. Visitors can instantly chat with an AI assistant, and whenever they request to speak with me, the conversation is transferred to human support. I receive a live push notification on my mobile, allowing me to join the chat instantly from anywhere.
+---
 
-## Get started
+## ✨ Features
 
-1. Install dependencies
+- 🚀 Real-time messaging with Supabase Realtime
+- 🤖 AI Assistant support
+- 👨‍💻 Admin Take Over functionality
+- 🔄 Switch conversation between AI and Human
+- 💬 Live conversation updates
+- 📩 Unread message counter
+- 🔔 Push Notifications (Expo + FCM)
+- 👤 Visitor information
+- 📱 Beautiful modern UI
+- 🌙 Dark Theme
+- ⚡ Built with Expo Router
+- 🔥 Supabase Backend
 
-   ```bash
-   npm install
-   ```
+---
 
-2. Start the app
+## Screenshots
 
-   ```bash
-   npx expo start
-   ```
+> Will Add Later.
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+assets/screenshots/
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+# Tech Stack
 
-To learn more about developing your project with Expo, look at the following resources:
+### Frontend
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- Expo SDK 54
+- React Native
+- Expo Router
+- TypeScript
+- NativeWind (Tailwind CSS)
 
-## Join the community
+### Backend
 
-Join our community of developers creating universal apps.
+- Supabase
+- PostgreSQL
+- Realtime Database
+- Edge Functions
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Notifications
+
+- Expo Notifications
+- Firebase Cloud Messaging (FCM)
+
+---
+
+# Project Structure
+
+```
+app/
+│
+├── (tabs)/
+│   ├── index.tsx
+│   └── explore.tsx
+│
+├── chat/
+│   └── [id].tsx
+│
+components/
+│   ├── ConversationItem.tsx
+│   ├── MessageBubble.tsx
+│   └── ReplyBox.tsx
+│
+lib/
+│   ├── supabase.ts
+│   ├── chat.ts
+│   └── notifications.ts
+│
+assets/
+hooks/
+constants/
+types/
+```
+
+---
+
+# Features Overview
+
+## Visitor
+
+- Start conversation
+- Chat with AI
+- Receive AI replies
+- Continue chatting
+
+---
+
+## Admin
+
+- View all conversations
+- Real-time updates
+- Reply instantly
+- Take Over AI conversation
+- End Chat
+- Resume AI Assistant
+- Live unread counter
+
+---
+
+## Conversation Status
+
+| Status | Description |
+|----------|-------------|
+| waiting | Waiting for admin |
+| human | Admin is handling chat |
+| bot | AI Assistant is handling chat |
+
+---
+
+## Message Types
+
+| Sender | Bubble |
+|----------|---------|
+| user | Visitor |
+| admin | Human Agent |
+| bot | AI Assistant |
+| system | System Messages |
+
+---
+
+# Push Notifications
+
+Notifications are sent only when:
+
+- Visitor sends a message
+- Conversation status is **waiting**
+- Admin is not already chatting
+
+Notification Title
+
+```
+Visitor Name
+```
+
+Notification Body
+
+```
+Latest Visitor Message
+```
+
+Powered by
+
+- Expo Push Notifications
+- Firebase Cloud Messaging
+- Supabase Edge Functions
+
+---
+
+# Installation
+
+Clone repository
+
+```bash
+git clone https://github.com/arslan433/chat-with-me.git
+```
+
+Go to project
+
+```bash
+cd chat-with-me
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Run Expo
+
+```bash
+npx expo start
+```
+
+---
+
+# Environment Variables
+
+Create a `.env` file.
+
+```env
+EXPO_PUBLIC_SUPABASE_URL=
+
+EXPO_PUBLIC_SUPABASE_ANON_KEY=
+```
+
+---
+
+# Supabase Setup
+
+Create the following tables.
+
+## conversations
+
+| Column |
+|----------|
+| id |
+| visitor_name |
+| visitor_email |
+| status |
+| last_message |
+| unread_count |
+| updated_at |
+
+---
+
+## messages
+
+| Column |
+|----------|
+| id |
+| conversation_id |
+| sender |
+| message |
+| created_at |
+
+---
+
+## admin_devices
+
+| Column |
+|----------|
+| id |
+| push_token |
+| device_name |
+
+---
+
+# Firebase Setup
+
+1. Create Firebase Project
+2. Enable Firebase Cloud Messaging
+3. Register Android App
+4. Download
+
+```
+google-services.json
+```
+
+5. Place it in project root.
+
+---
+
+# Build APK
+
+Login
+
+```bash
+eas login
+```
+
+Configure
+
+```bash
+eas build:configure
+```
+
+Preview APK
+
+```bash
+eas build --platform android --profile preview
+```
+
+Production
+
+```bash
+eas build --platform android
+```
+
+---
+
+# Realtime
+
+Realtime subscriptions
+
+- conversations
+- messages
+
+Used for
+
+- New conversations
+- New messages
+- Status updates
+- Live unread count
+
+---
+
+# Admin Controls
+
+## Take Over
+
+Changes status
+
+```
+waiting
+```
+
+↓
+
+```
+human
+```
+
+---
+
+## End Chat
+
+Changes status
+
+```
+human
+```
+
+↓
+
+```
+bot
+```
+
+Also inserts
+
+```
+Chat ended.
+AI Assistant has resumed the conversation.
+```
+
+---
+
+# Notifications Flow
+
+```
+Visitor Message
+
+        │
+
+        ▼
+
+Supabase INSERT
+
+        │
+
+        ▼
+
+Database Webhook
+
+        │
+
+        ▼
+
+Edge Function
+
+        │
+
+        ▼
+
+Check Status
+
+(waiting)
+
+        │
+
+        ▼
+
+Expo Push API
+
+        │
+
+        ▼
+
+Admin Device
+```
+
+---
+
+# Dependencies
+
+- expo
+- expo-router
+- expo-notifications
+- expo-device
+- expo-constants
+- react-native
+- nativewind
+- @supabase/supabase-js
+
+---
+
+# Future Improvements
+
+- Typing Indicator
+- Read Receipts
+- File Sharing
+- Image Messages
+- Voice Messages
+- Multiple Admin Support
+- Chat Search
+- Visitor Online Status
+- AI Conversation History
+- Chat Analytics
+- Dashboard
+- User Authentication
+
+---
+
+# Author
+
+**Arslan Muhammad**
+
+Full Stack Developer
+
+GitHub
+
+https://github.com/arslan433
+
+---
+
+# License
+
+MIT License
+
+Copyright (c) 2026 Arslan Muhammad
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files, to deal in the Software without restriction.
