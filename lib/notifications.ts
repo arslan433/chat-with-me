@@ -4,11 +4,11 @@ import Constants from "expo-constants";
 import { Platform } from "react-native";
 import { supabase } from "./supabase";
 
+// 🚀 FIXED: Properties ko sahi standard par set kiya taake popup show ho
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
+    shouldShowAlert: true,  // ✅ ZAROORI: Iske bina popup banner nahi aayega
+    shouldPlaySound: true,  // ✅ Notification sound ke liye
     shouldSetBadge: false,
   }),
 });
@@ -24,22 +24,18 @@ export async function registerForPushNotifications() {
     if (Platform.OS === "android") {
       await Notifications.setNotificationChannelAsync("default", {
         name: "Default",
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
+        importance: Notifications.AndroidImportance.MAX, // Max importance for popup
+        vibrationPattern: [0, 250, 250, 250], // Vibration pattern
         lightColor: "#2563EB",
       });
     }
 
     // Permission
-    const { status: existingStatus } =
-      await Notifications.getPermissionsAsync();
-
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
 
     if (existingStatus !== "granted") {
-      const { status } =
-        await Notifications.requestPermissionsAsync();
-
+      const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
     }
 
@@ -67,7 +63,7 @@ export async function registerForPushNotifications() {
 
     console.log("Expo Push Token:", token);
 
-    // Save token
+    // Save token to Supabase
     const { error } = await supabase
       .from("admin_devices")
       .upsert(

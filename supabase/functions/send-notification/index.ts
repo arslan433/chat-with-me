@@ -1,82 +1,104 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.45.0";
 
-serve(async (req : Request) => {
+Deno.serve(async (req: Request) => {
+  if (req.method !== "POST") {
+    console.log(`Blocked: Received ${req.method} request instead of POST.`);
+    return new Response("Method Not Allowed", { status: 405 });
+  }
+
   try {
     const payload = await req.json();
-
-    console.log("Webhook:", payload);
+    console.log("1. Webhook Raw Payload Received:", JSON.stringify(payload));
 
     const supabase = createClient(
-      Deno.env.get("PROJECT_URL")!,
-      Deno.env.get("SERVICE_ROLE_KEY")!
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
     const message = payload.record;
-
-    // only user messages  notification 
-    if (message.sender !== "user") {
-      return new Response("Ignored");
+    if (!message) {
+      console.log("Error: Payload record is missing");
+      return new Response("No record found in payload", { status: 400 });
     }
 
-    // Conversation details
-    const { data: conversation } = await supabase
+    // Validation: Sirf User ke messages par trigger karein
+    if (message.sender !== "user") {
+      console.log(`Ignored: Sender is '${message.sender}', not 'user'`);
+      return new Response("Ignored: Not a user message");
+    }
+
+    // Conversation layout state check
+    const { data: conversation, error: convError } = await supabase
       .from("conversations")
       .select("*")
       .eq("id", message.conversation_id)
       .single();
 
-    if (!conversation) {
-      return new Response("Conversation not found");
+    if (convError || !conversation) {
+      console.log("Error: Conversation not found for ID:", message.conversation_id);
+      return new Response("Conversation not found", { status: 404 });
     }
 
-    //  admin takeover: no notification 
     if (conversation.status !== "waiting") {
+      console.log(`Ignored: Status is '${conversation.status}', not 'waiting'`);
       return new Response("Conversation not waiting");
     }
 
-    // Admin token
-    const { data: admin } = await supabase
+    // Admin Devices Push Token
+    const { data: admin, error: adminError } = await supabase
       .from("admin_devices")
       .select("push_token")
       .eq("id", "admin")
       .single();
 
-    if (!admin?.push_token) {
-      return new Response("No push token");
+    if (adminError || !admin?.push_token) {
+      console.log("Error: Admin push token missing in Database");
+      return new Response("No push token", { status: 404 });
     }
 
-    console.log("Push Token:", admin?.push_token);
-console.log("Title:", conversation.visitor_name);
-console.log("Body:", message.message);
+        console.log("Sending High-Priority Push Notification to Token:", admin.push_token);
 
-    // Expo Push Notification
+    const expoPayload = [
+      {
+        to: admin.push_token,
+        title: conversation.visitor_name || "New Visitor Chat",
+        body: message.message,
+        sound: "default",
+        priority: "high",           // App closed notification delivery
+        channelId: "default",       // Android notification channel setup
+        data: { conversationId: message.conversation_id },
+      }
+    ];
+
+    // Clean API call with essential security headers
     const res = await fetch("https://exp.host/--/api/v2/push/send", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Accept-Encoding": "gzip, deflate" // Expo route handling verification 
       },
-      body: JSON.stringify({
-        to: admin.push_token,
-        title: conversation.visitor_name || "New Visitor",
-        body: message.message,
-        sound: "default",
-        data: {
-          conversationId: message.conversation_id,
-        },
-      }),
+      body: JSON.stringify(expoPayload),
     });
 
-    const result = await res.json();
 
-    console.log(result);
+    // Handle plain text response to avoid crash
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      const result = await res.json();
+      console.log("Expo Delivery Receipt Result:", JSON.stringify(result));
+      return Response.json(result);
+    } else {
+      const textError = await res.text();
+      console.error("Expo Server did not return JSON:", textError);
+      return new Response(`Expo Error: ${textError}`, { status: res.status });
+    }
 
-    return Response.json(result);
   } catch (err) {
-    console.error(err);
-
-    return new Response(String(err), {
+    console.error("CRITICAL EXCEPTION:", err);
+    return new Response(JSON.stringify({ error: String(err) }), {
       status: 500,
+      headers: { "Content-Type": "application/json" },
     });
   }
 });
