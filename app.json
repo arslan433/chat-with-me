@@ -12,7 +12,9 @@
       "supportsTablet": true
     },
     "android": {
-      "googleServicesFile": "./google-services.json",
+      "googleServicesFile": process.env.GOOGLE_SERVICES_JSON_BASE64 
+        ? "./google-services.json" 
+        : "./google-services.json",
       "permissions": [
         "POST_NOTIFICATIONS"
       ],
